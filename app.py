@@ -31,9 +31,8 @@ def get_db_connection():
 def send_confirmation_email(email):
     """Enviar correo de confirmación de registro"""
     try:
-        # Configurar servidor SMTP
-        server = smtplib.SMTP(config.SMTP_CONFIG['host'], config.SMTP_CONFIG['port'])
-        server.starttls()
+        # Configurar servidor SMTP con TLS/SSL en el puerto 465
+        server = smtplib.SMTP_SSL(config.SMTP_CONFIG['host'], config.SMTP_CONFIG['port'])
         server.login(config.SMTP_CONFIG['sender_email'], config.SMTP_CONFIG['sender_password'])
         
         # Crear mensaje

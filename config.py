@@ -9,7 +9,7 @@ DB_CONFIG = {
 # Configuración de correo SMTP
 SMTP_CONFIG = {
     'host': 'smtp.gmail.com',
-    'port': 587,
+    'port': 465,
     'sender_email': 'soporteuacjcast@gmail.com',
     'sender_password': 'bwtilydrroosimns',
     'sender_name': 'Soporte UACJ'
