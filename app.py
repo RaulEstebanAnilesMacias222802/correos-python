@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-import mysql.connector
+import sqlite3
 from werkzeug.security import generate_password_hash
 import smtplib
 from email.mime.text import MIMEText
@@ -19,11 +19,12 @@ logger = logging.getLogger(__name__)
 
 
 def get_db_connection():
-    """Conectar a la base de datos"""
+    """Conectar a la base de datos SQLite"""
     try:
-        connection = mysql.connector.connect(**config.DB_CONFIG)
+        connection = sqlite3.connect(config.DB_PATH)
+        connection.row_factory = sqlite3.Row
         return connection
-    except mysql.connector.Error as err:
+    except sqlite3.Error as err:
         logger.error(f"Error de conexión a BD: {err}")
         raise
 
@@ -132,7 +133,7 @@ def registro():
         contrasenia_hash = generate_password_hash(contrasenia)
         
         # Insertar usuario
-        query = "INSERT INTO usuarios (correo, contrasenia) VALUES (%s, %s)"
+        query = "INSERT INTO usuarios (correo, contrasenia) VALUES (?, ?)"
         cursor.execute(query, (correo, contrasenia_hash))
         connection.commit()
         
@@ -155,20 +156,23 @@ def registro():
                 'message': f'Registro exitoso, pero hubo un problema al enviar el correo: {email_message}'
             }), 200
             
-    except mysql.connector.Error as err:
+    except sqlite3.IntegrityError as err:
         logger.error(f"Error de base de datos: {err}")
-        
-        if err.errno == 1062:  # Duplicate entry
+        if 'UNIQUE constraint failed' in str(err):
             return jsonify({
-                'success': False, 
+                'success': False,
                 'message': 'Este correo ya está registrado'
             }), 400
-        else:
-            return jsonify({
-                'success': False, 
-                'message': 'Error en la base de datos'
-            }), 500
-            
+        return jsonify({
+            'success': False,
+            'message': 'Error en la base de datos'
+        }), 500
+    except sqlite3.Error as err:
+        logger.error(f"Error de base de datos: {err}")
+        return jsonify({
+            'success': False,
+            'message': 'Error en la base de datos'
+        }), 500
     except Exception as e:
         logger.error(f"Error inesperado: {e}")
         return jsonify({

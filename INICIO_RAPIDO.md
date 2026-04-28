@@ -26,16 +26,11 @@ pip install -r requirements.txt
 Edita el archivo `config.py` con tus datos:
 
 ```python
-DB_CONFIG = {
-    'host': 'tu_host',
-    'user': 'tu_usuario',
-    'password': 'tu_contraseña',
-    'database': 'tu_base_datos'
-}
+DB_PATH = 'database.db'
 
 SMTP_CONFIG = {
     'host': 'smtp.gmail.com',
-    'port': 587,
+    'port': 465,
     'sender_email': 'tu_correo@gmail.com',
     'sender_password': 'tu_contraseña_app',  # Si usas 2FA en Gmail
     'sender_name': 'Tu Nombre'

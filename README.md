@@ -36,16 +36,11 @@ pip install -r requirements.txt
 Actualiza los siguientes valores con tus propias credenciales:
 
 ```python
-DB_CONFIG = {
-    'host': 'tu_host_db',
-    'user': 'tu_usuario_db',
-    'password': 'tu_contraseña_db',
-    'database': 'tu_base_datos'
-}
+DB_PATH = 'database.db'
 
 SMTP_CONFIG = {
     'host': 'smtp.gmail.com',
-    'port': 587,
+    'port': 465,
     'sender_email': 'tu_correo@gmail.com',
     'sender_password': 'tu_contraseña_o_app_password',
     'sender_name': 'Tu Nombre'
@@ -55,13 +50,13 @@ SECRET_KEY = 'una_clave_secreta_fuerte'
 ```
 
 ### 2. Preparar la base de datos
-La tabla `usuarios` debe tener la siguiente estructura:
+El archivo SQLite se crea automáticamente y la tabla `usuarios` se define como:
 
 ```sql
-CREATE TABLE usuarios (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    correo VARCHAR(255) UNIQUE NOT NULL,
-    contrasenia VARCHAR(255) NOT NULL,
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    correo TEXT UNIQUE NOT NULL,
+    contrasenia TEXT NOT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
